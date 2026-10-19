@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!-- Optional: paste your Google Analytics 4 tag here to count events (see README) -->
+<style>[hidden]{display:none!important}body{margin:0}</style>
+</head>
+<body>
+<title>Shortlist Check</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: phone-first single column; on wide screens the form sits left and the report card right, like a placement-cell desk. */
+:root{
+  --paper:#f4f6fa; --card:#ffffff; --ink:#15203a; --muted:#5a6580; --line:#dde2ec;
+  --signal:#f2a900; --signal-ink:#3a2a00; --navy:#1d3a8a;
+  --good:#1e8e5a; --mid:#c27c00; --low:#c2412d; --chip:#eef1f8;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0e1424; --card:#161e33; --ink:#e7ebf5; --muted:#9aa5c0; --line:#28324b;
+  --signal:#ffc23d; --signal-ink:#2a1e00; --navy:#8fb0ff; --good:#4fd08f; --mid:#f0b03c; --low:#ff8a72; --chip:#1f2942; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0e1424; --card:#161e33; --ink:#e7ebf5; --muted:#9aa5c0; --line:#28324b;
+  --signal:#ffc23d; --signal-ink:#2a1e00; --navy:#8fb0ff; --good:#4fd08f; --mid:#f0b03c; --low:#ff8a72; --chip:#1f2942; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:1120px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:10px}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--signal);box-shadow:0 0 0 5px color-mix(in srgb,var(--signal) 25%,transparent)}
+.brand b{font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:-.01em}
+.byline{font-size:12px;color:var(--muted)}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(26px,5vw,40px);line-height:1.08;letter-spacing:-.02em;margin:0 0 8px;text-wrap:balance;max-width:20ch}
+.lede{color:var(--muted);max-width:60ch;margin:0 0 22px}
+.grid{display:grid;grid-template-columns:1fr;gap:18px}
+@media (min-width:900px){.grid{grid-template-columns:minmax(0,5fr) minmax(0,6fr);align-items:start}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;min-width:0}
+.label{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.06em;margin:0 0 6px}
+.label small{font-weight:500;text-transform:none;letter-spacing:0;color:var(--muted)}
+textarea{width:100%;min-height:150px;resize:vertical;border:1px solid var(--line);border-radius:10px;padding:12px;font:inherit;font-size:14px;background:var(--paper);color:var(--ink)}
+textarea:focus,button:focus-visible{outline:3px solid color-mix(in srgb,var(--signal) 60%,transparent);outline-offset:1px}
+.field{display:grid;gap:6px;margin-bottom:16px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip-btn{border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;padding:5px 11px;font:inherit;font-size:13px;cursor:pointer}
+.chip-btn:hover{border-color:var(--navy)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--paper)}
+.seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-weight:600;font-size:13px;padding:6px 14px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.go{border:0;background:var(--signal);color:var(--signal-ink);font:inherit;font-weight:700;font-size:16px;padding:13px 20px;border-radius:12px;cursor:pointer;flex:1 1 220px}
+.go:disabled{opacity:.6;cursor:progress}
+.err{color:var(--low);font-weight:600;margin:10px 0 0}
+.note{font-size:12px;color:var(--muted);margin:10px 0 0}
+
+/* report */
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:2px 8px}
+.scorebox{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:12px 0 4px}
+.ring{--v:50;--c:var(--mid);width:118px;height:118px;border-radius:50%;flex:none;display:grid;place-items:center;
+  background:conic-gradient(var(--c) calc(var(--v)*1%),var(--line) 0)}
+.ring span{width:94px;height:94px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-family:var(--mono);font-weight:600;font-size:30px;font-variant-numeric:tabular-nums}
+.ring span small{display:block;font-size:11px;color:var(--muted);margin-top:-18px}
+.band{display:inline-block;font-weight:700;font-size:13px;padding:3px 10px;border-radius:999px;color:#fff;background:var(--c)}
+.verdict{font-family:var(--display);font-weight:600;font-size:19px;line-height:1.3;margin:6px 0 0;text-wrap:balance}
+.scoremeta{min-width:0;flex:1 1 220px}
+section.part{border-top:1px solid var(--line);padding-top:14px;margin-top:16px}
+section.part h3{font-family:var(--display);font-weight:600;font-size:17px;margin:0 0 10px}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--good);border-radius:999px;padding:3px 10px;font-size:13px;font-weight:600}
+.pill.kw{background:var(--chip);color:var(--ink);font-family:var(--mono);font-size:12px;font-weight:500}
+.gap{display:grid;gap:4px;padding:12px;border:1px solid var(--line);border-left:4px solid var(--low);border-radius:10px;margin-bottom:10px}
+.gap b{font-size:15px}
+.gap dl{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin:4px 0 0;font-size:14px}
+.gap dt{color:var(--muted);font-weight:600}
+.gap dd{margin:0;min-width:0}
+.bullet{display:grid;gap:6px;margin-bottom:12px}
+.before{color:var(--muted);text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--low) 60%,transparent);font-size:14px}
+.after{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.after p{margin:0;min-width:0}
+.copy{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;font:inherit;font-size:12px;font-weight:600;padding:4px 9px;cursor:pointer;flex:none}
+.msg{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px;white-space:pre-wrap}
+ol.plan{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+ol.plan li{display:grid;grid-template-columns:76px 1fr;gap:10px}
+ol.plan .d{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--navy);padding-top:2px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.actions button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;font:inherit;font-weight:600;padding:9px 14px;cursor:pointer}
+.actions .primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.thanks{color:var(--good);font-weight:600;font-size:14px}
+.loading{display:grid;gap:10px;padding:30px 0;text-align:center;color:var(--muted)}
+.pulse{width:16px;height:16px;margin:0 auto;border-radius:50%;background:var(--signal);animation:p 1s ease-in-out infinite}
+@keyframes p{50%{transform:scale(1.6);opacity:.4}}
+@media (prefers-reduced-motion:reduce){.pulse{animation:none}}
+footer{margin-top:26px;font-size:12px;color:var(--muted)}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><span class="dot" aria-hidden="true"></span><b>Shortlist Check</b></div>
+    <span class="byline">Built by Tejas Patil · Beep Founder's Office task</span>
+  </header>
+
+  <h1>Know your shortlist chances before you apply.</h1>
+  <p class="lede">Paste the job and your resume. In about 15 seconds you get a score out of 100, the 3 gaps that will get you rejected, rewritten resume lines, and a 7-day plan to fix them for free. No login, no payment.</p>
+
+  <div class="grid">
+    <form class="panel" id="form" novalidate>
+      <div class="field">
+        <label class="label" for="job">1 · The job <small>paste the full description</small></label>
+        <div class="chips" aria-label="Sample jobs">
+          <button type="button" class="chip-btn" data-job="dm">Sample: Digital Marketing Intern</button>
+          <button type="button" class="chip-btn" data-job="sales">Sample: Sales Executive (fresher)</button>
+          <button type="button" class="chip-btn" data-job="data">Sample: MIS / Data Executive</button>
+        </div>
+        <textarea id="job" rows="7"></textarea>
+      </div>
+      <div class="field">
+        <label class="label" for="resume">2 · Your resume <small>copy the text from your PDF</small></label>
+        <textarea id="resume" rows="9"></textarea>
+      </div>
+      <div class="row">
+        <div class="seg" role="group" aria-label="Explanation language">
+          <button type="button" id="lang-en" aria-pressed="true">English</button>
+          <button type="button" id="lang-hi" aria-pressed="false">Hinglish</button>
+        </div>
+        <button class="go" id="go" type="submit">Check my chances</button>
+      </div>
+      <p class="err" id="err" hidden></p>
+      <p class="note">Your text is only used to make this report. Nothing is stored.</p>
+    </form>
+
+    <div class="panel" id="report" aria-live="polite"></div>
+  </div>
+
+  <footer>Prototype for Beep's Founder's Office assignment. AI can be wrong, so read the suggestions before using them.</footer>
+</div>
+
+<script src="prompt.js"></script>
+<script>
+(function(){
+  // ---------- sample data (fictional student, marked as example) ----------
+  var JOBS = {
+    dm: "Digital Marketing Intern (Remote) — 3 months, stipend ₹8,000/month\nAbout the role: Help a D2C skincare brand grow on Instagram and Google.\nResponsibilities:\n- Plan and create 12+ Instagram posts and reels per month using Canva\n- Run small Meta (Facebook/Instagram) ad campaigns and report results\n- Track website traffic in Google Analytics 4 and share a weekly report in Excel/Google Sheets\n- Write captions in English and Hindi\nRequirements: Basic knowledge of social media marketing, Canva, Meta Ads Manager, GA4, Excel. Good communication. Any graduate/final year student.",
+    sales: "Sales Executive – Fresher (Field + Inside Sales), Pune / Nashik\nSalary: ₹2.4–3 LPA + incentives\nResponsibilities: Call and visit 30+ shop owners daily, explain our billing app, close sales, maintain leads in CRM/Excel, achieve monthly targets.\nRequirements: Excellent Marathi/Hindi communication, confidence in talking to strangers, basic Excel, two-wheeler with licence, any graduate. Sales internship or customer-facing experience preferred.",
+    data: "MIS / Data Executive – Fresher, Indore\nSalary: ₹2.2–2.8 LPA\nResponsibilities: Maintain daily sales and stock reports in Excel, clean data, build pivot tables and VLOOKUP/XLOOKUP sheets, make simple dashboards, share reports with managers on time.\nRequirements: Strong Excel (pivot tables, VLOOKUP, charts), basic SQL is a plus, attention to detail, B.Com/BBA/BCA/B.Sc."
+  };
+  var SAMPLE_RESUME = "Priya Shinde — BBA (Marketing), 3rd year, KTHM College, Nashik\nEmail: priya.example@mail.com\n\nSkills: MS Office, Canva, social media, communication (English, Hindi, Marathi)\n\nExperience:\n- Managed the Instagram page for our college fest 'Udaan 2025'\n- Made posters and banners in Canva for college events\n- NSS volunteer, organised a blood donation camp\n\nCertificates: MS-CIT\nHobbies: reading, cooking";
+
+  var SAMPLE_RESULT = {
+    score: 48, band: "Medium",
+    verdict: "You have the right base (Canva and a real Instagram page) but nothing on your resume proves ads, analytics or results, which this job asks for.",
+    matched: ["Canva", "Social media content", "English + Hindi communication", "MS Office"],
+    gaps: [
+      {skill:"Meta Ads Manager", why_it_matters:"Running small ad campaigns is a core duty. Recruiters will filter for 'Meta Ads'.", fix_in_7_days:"Do the free Meta Blueprint 'Ads Manager basics' lessons and set up a ₹100 test boost for a friend's shop or your fest page.", proof_to_show:"A one-slide result: spend, reach, clicks, cost per click."},
+      {skill:"Google Analytics 4 reporting", why_it_matters:"The job needs a weekly traffic report. Your resume has no analytics at all.", fix_in_7_days:"Finish Google's free GA4 course on Skillshop and explore the GA4 demo account.", proof_to_show:"A sample weekly report made from the demo account in Google Sheets."},
+      {skill:"Numbers on your results", why_it_matters:"'Managed Instagram page' does not show impact. Recruiters skip lines without numbers.", fix_in_7_days:"Open Instagram Insights for the fest page and note followers before/after, best reel views, posts made.", proof_to_show:"Rewritten bullets with real numbers (see below)."}
+    ],
+    bullets: [
+      {before:"Managed the Instagram page for our college fest 'Udaan 2025'", after:"Grew the Udaan 2025 fest Instagram page from [add number] to [add number] followers in [add number] weeks by posting [add number] reels and posts."},
+      {before:"Made posters and banners in Canva for college events", after:"Designed [add number]+ posters, banners and story creatives in Canva for 4 college events, keeping one consistent brand style."},
+      {before:"NSS volunteer, organised a blood donation camp", after:"Promoted an NSS blood donation camp on WhatsApp and Instagram and coordinated [add number] volunteers, collecting [add number] units."}
+    ],
+    keywords: ["Meta Ads Manager","GA4","Instagram Reels","content calendar","campaign reporting","Google Sheets","engagement rate","copywriting"],
+    recruiter_message: "Hi, I'm Priya, a final-year BBA Marketing student from Nashik. I ran the Instagram page for our college fest and designed all its Canva creatives. I'm now learning Meta Ads and GA4 so I can run and report small campaigns from day one. I'd love to help your brand grow on Instagram. Thank you!",
+    plan: [
+      {day:"Day 1-2", task:"Collect real numbers from Instagram Insights and rewrite your 3 bullets."},
+      {day:"Day 3-4", task:"Finish Meta Ads basics and run a ₹100 test boost. Screenshot the results."},
+      {day:"Day 5-6", task:"Do the GA4 course and make a sample weekly report in Google Sheets."},
+      {day:"Day 7", task:"Update your resume with the new keywords and apply with the message above."}
+    ]
+  };
+
+  // ---------- state ----------
+  var lang = "english";
+  var $ = function(id){ return document.getElementById(id); };
+  var jobEl = $("job"), resEl = $("resume"), report = $("report"), errEl = $("err"), goBtn = $("go");
+  jobEl.value = JOBS.dm; resEl.value = SAMPLE_RESUME;
+
+  // ---------- analytics hook (GA4 / PostHog if added on the live site) ----------
+  function track(name, props){
+    props = props || {};
+    try { if (window.gtag) window.gtag("event", name, props); } catch(e){}
+    try { if (window.posthog) window.posthog.capture(name, props); } catch(e){}
+  }
+  track("tool_opened");
+
+  document.querySelectorAll("[data-job]").forEach(function(b){
+    b.addEventListener("click", function(){ jobEl.value = JOBS[b.dataset.job]; track("sample_job_used",{job:b.dataset.job}); });
+  });
+  function setLang(l){
+    lang = l;
+    $("lang-en").setAttribute("aria-pressed", String(l==="english"));
+    $("lang-hi").setAttribute("aria-pressed", String(l==="hinglish"));
+  }
+  $("lang-en").addEventListener("click", function(){ setLang("english"); });
+  $("lang-hi").addEventListener("click", function(){ setLang("hinglish"); });
+
+  // ---------- AI call ----------
+  // Inside claude.ai (preview): uses Claude via the page's sample capability.
+  // On the live website (Vercel): calls our own /api/analyze, which uses Gemini.
+  async function analyze(job, resume, lang){
+    if (window.claude && window.claude.use) {
+      var sample = await window.claude.use("sample");
+      if (sample) {
+        var out = await sample(window.ShortlistPrompt.buildPrompt(job, resume, lang), { modelTier: "default" });
+        var t = out.text.trim().replace(/^```json\s*|\s*```$/g, "");
+        return JSON.parse(t.slice(t.indexOf("{"), t.lastIndexOf("}") + 1));
+      }
+    }
+    var r = await fetch("api/analyze", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({job:job, resume:resume, lang:lang}) });
+    var data = await r.json().catch(function(){ return {}; });
+    if (!r.ok) throw new Error(data.error || "Something went wrong. Please try again.");
+    return data;
+  }
+
+  // ---------- render ----------
+  function esc(s){ var d=document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+  function bandColor(b){ return b==="High" ? "var(--good)" : b==="Low" ? "var(--low)" : "var(--mid)"; }
+
+  function render(r, isExample){
+    var score = Math.max(0, Math.min(100, Math.round(+r.score || 0)));
+    var c = bandColor(r.band);
+    var h = "";
+    h += isExample ? '<span class="tag">Example report · fictional student</span>' : '<span class="tag">Your report</span>';
+    h += '<div class="scorebox"><div class="ring" style="--v:'+score+';--c:'+c+'"><span>'+score+'<small>/100</small></span></div>';
+    h += '<div class="scoremeta"><span class="band" style="--c:'+c+'">'+esc(r.band)+' shortlist chance</span><p class="verdict">'+esc(r.verdict)+'</p></div></div>';
+
+    if (r.matched && r.matched.length){
+      h += '<section class="part"><h3>What already matches</h3><div class="pills">';
+      r.matched.forEach(function(m){ h += '<span class="pill">'+esc(m)+'</span>'; });
+      h += '</div></section>';
+    }
+    if (r.gaps && r.gaps.length){
+      h += '<section class="part"><h3>Fix these before you apply</h3>';
+      r.gaps.forEach(function(g){
+        h += '<div class="gap"><b>'+esc(g.skill)+'</b><dl><dt>Why</dt><dd>'+esc(g.why_it_matters)+'</dd><dt>Fix</dt><dd>'+esc(g.fix_in_7_days)+'</dd><dt>Proof</dt><dd>'+esc(g.proof_to_show)+'</dd></dl></div>';
+      });
+      h += '</section>';
+    }
+    if (r.bullets && r.bullets.length){
+      h += '<section class="part"><h3>Rewritten resume lines</h3>';
+      r.bullets.forEach(function(b,i){
+        h += '<div class="bullet"><span class="before">'+esc(b.before)+'</span><div class="after"><p id="b'+i+'">'+esc(b.after)+'</p><button type="button" class="copy" data-copy="b'+i+'">Copy</button></div></div>';
+      });
+      h += '<p class="note">Replace every [add number] with your real figure. Never add numbers you can\'t prove.</p></section>';
+    }
+    if (r.keywords && r.keywords.length){
+      h += '<section class="part"><h3>Keywords the job filter looks for</h3><div class="pills">';
+      r.keywords.forEach(function(k){ h += '<span class="pill kw">'+esc(k)+'</span>'; });
+      h += '</div></section>';
+    }
+    if (r.recruiter_message){
+      h += '<section class="part"><h3>Message to send with your application</h3><div class="msg" id="msg">'+esc(r.recruiter_message)+'</div><div class="actions" style="margin-top:8px"><button type="button" class="copy" data-copy="msg">Copy message</button></div></section>';
+    }
+    if (r.plan && r.plan.length){
+      h += '<section class="part"><h3>Your 7-day plan</h3><ol class="plan">';
+      r.plan.forEach(function(p){ h += '<li><span class="d">'+esc(p.day)+'</span><span>'+esc(p.task)+'</span></li>'; });
+      h += '</ol></section>';
+    }
+    if (!isExample){
+      h += '<div class="actions" id="fb"><button type="button" class="primary" data-fb="apply_intent">I\'ll fix this and apply</button><button type="button" data-fb="helpful">This helped</button><button type="button" data-fb="not_helpful">Not useful</button></div>';
+    }
+    report.innerHTML = h;
+  }
+
+  report.addEventListener("click", function(e){
+    var cp = e.target.closest("[data-copy]");
+    if (cp){
+      var text = $(cp.dataset.copy).textContent;
+      var done = function(){ cp.textContent = "Copied"; setTimeout(function(){ cp.textContent = cp.dataset.copy==="msg" ? "Copy message" : "Copy"; }, 1500); };
+      try { navigator.clipboard.writeText(text).then(done, function(){ selectText(cp.dataset.copy); }); } catch(_) { selectText(cp.dataset.copy); }
+      track("copied", {what: cp.dataset.copy});
+      return;
+    }
+    var fb = e.target.closest("[data-fb]");
+    if (fb){
+      track("feedback_" + fb.dataset.fb);
+      $("fb").innerHTML = '<span class="thanks">'+(fb.dataset.fb==="apply_intent" ? "Good luck! Come back after your 7-day plan and check again." : "Thanks, noted.")+'</span>';
+    }
+  });
+  function selectText(id){ var r=document.createRange(); r.selectNodeContents($(id)); var s=getSelection(); s.removeAllRanges(); s.addRange(r); }
+
+  $("form").addEventListener("submit", async function(e){
+    e.preventDefault();
+    errEl.hidden = true;
+    var job = jobEl.value.trim(), resume = resEl.value.trim();
+    if (job.length < 40 || resume.length < 40){
+      errEl.textContent = "Paste both the job description and your resume (at least a few lines each).";
+      errEl.hidden = false; return;
+    }
+    goBtn.disabled = true; goBtn.textContent = "Checking…";
+    report.innerHTML = '<div class="loading"><div class="pulse"></div><span>Reading the job like a recruiter would…</span></div>';
+    track("check_started", {lang: lang});
+    var t0 = Date.now();
+    try {
+      var r = await analyze(job, resume, lang);
+      render(r, false);
+      track("report_shown", {score: r.score, band: r.band, seconds: Math.round((Date.now()-t0)/1000)});
+      if (window.innerWidth < 900) report.scrollIntoView({behavior:"smooth", block:"start"});
+    } catch(err){
+      render(SAMPLE_RESULT, true);
+      errEl.textContent = (err && err.message ? err.message : "The AI did not answer.") + " Showing the example report instead.";
+      errEl.hidden = false;
+      track("check_failed");
+    } finally {
+      goBtn.disabled = false; goBtn.textContent = "Check my chances";
+    }
+  });
+
+  render(SAMPLE_RESULT, true);
+})();
+</script>
+
+</body>
+</html>
